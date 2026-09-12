@@ -81,7 +81,9 @@ $shortcuts = @(
 foreach ($s in $shortcuts) {
   if (Test-Path -LiteralPath $s) {
     Remove-Item -LiteralPath $s -Force -ErrorAction SilentlyContinue
-    Write-Ok "已删除 $s"
+    # 删完要回读确认：被安全软件/权限拦住时不能谎报成功
+    if (Test-Path -LiteralPath $s) { Write-Warn2 "没删掉（可能被拦截，可手动删除）：$s" }
+    else { Write-Ok "已删除 $s" }
   }
 }
 
@@ -89,7 +91,8 @@ foreach ($s in $shortcuts) {
 $key = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DeepSeekHarness'
 if (Test-Path $key) {
   Remove-Item -Path $key -Recurse -Force -ErrorAction SilentlyContinue
-  Write-Ok '已从「设置 → 应用」移除'
+  if (Test-Path $key) { Write-Warn2 '没能从「设置 → 应用」移除（可手动删除注册项 HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\DeepSeekHarness）' }
+  else { Write-Ok '已从「设置 → 应用」移除' }
 }
 
 # ── 会话数据 ────────────────────────────────────────────────────────────────
